@@ -1,19 +1,16 @@
 extends CharacterBody3D
 class_name VelocityPlayerBody3D
 
-@onready var camera = $Camera3D as Camera3D ## Camera3D to attach to the player
-@onready var camera_anchor: Marker3D = $CameraAnchor ## Marker3D to use for interpolating camera postion between physics frames. Should be at the desired camera position.
+@export_group("Camera")
+@export var camera: Camera3D ## Camera3D for player view. Will be set to top level.
+@export var camera_anchor: Marker3D ## Marker3D used for interpolating camera postion between physics frames. Should be at the desired camera position.
 
-
-@export var move_force: float = 100:
-	set(value):
-		move_force = value
-		current_move_force = move_force
+@export_group("Movement")
+@export var move_force: float = 5000.0 ## Force to affect player velocity
 @export var mass: float = 90
 @export var player_sensitivity: float = 1.0
-@export var move_accel: float = 1
-@export var drag: float = .01
-var current_move_force: float = move_force
+@export var move_accel: float = 100.0
+@export var drag: float = 0.4
 var bufferd_move_vector: Vector3
 var mouse_input: Vector2
 var move_input_vector: Vector2
@@ -26,7 +23,8 @@ var player_rotation: Vector3:
 
 
 func _ready() -> void:
-	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	
+	camera.top_level = true
 
 
 func _physics_process(delta: float) -> void:
@@ -37,7 +35,7 @@ func _physics_process(delta: float) -> void:
 	velocity -= dragVector * delta
 	
 	## Add player input 
-	var tick_acceleration_delta = current_move_force / mass * delta ## the most 'force' can change velocity in this tick
+	var tick_acceleration_delta = move_force / mass * delta ## the most 'force' can change velocity in this tick
 	move_input_vector = Input.get_vector("move_left", "move_right", "move_forward", "move_back").rotated(-player_rotation.y)
 	## NOTE. adding a 'waight' to the input should work unless the acceleration needs to be snappier then what the force apllied to the velocity can do 
 	var move_input_sphere = Vector3(move_input_vector.x, 0, move_input_vector.y)
@@ -47,7 +45,7 @@ func _physics_process(delta: float) -> void:
 	## If a velocity axis is less then or equal to the Max_Acceleration_Delta, and an input axis is 0, it will apply the percent of the MAD needed to stop
 	## velocity.x / tick_acceleration_delta = 0.5 / 0.952 = 0.525. | force_unitvector.x = (input.x)0, - 0.525 = -0.525. force_unitvector.x = -0.525
 	## force_vector.x = force_unitvector.x(-0.525) * tick_force(0.952) = -0.5.  velocity.x(0.5) + force_vector(-0.5) = 0
-	var force_vector = (force_unitvector * current_move_force)
+	var force_vector = (force_unitvector * move_force)
 	velocity += force_vector / mass * delta
 	
 	
