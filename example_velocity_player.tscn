@@ -10,7 +10,7 @@ height = 1.7
 radius = 0.4
 height = 1.7
 
-[node name="ExamplePlayer" type="CharacterBody3D" node_paths=PackedStringArray("camera", "camera_anchor")]
+[node name="ExampleVelocityPlayer" type="CharacterBody3D" node_paths=PackedStringArray("camera", "camera_anchor")]
 physics_interpolation_mode = 1
 top_level = true
 script = ExtResource("1_cfaa8")
