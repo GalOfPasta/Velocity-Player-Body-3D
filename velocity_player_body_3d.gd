@@ -1,5 +1,5 @@
 extends CharacterBody3D
-class_name VelocityPlayerBody3D ## Character body that uses drag to limit player speed. Has camera anchor setup for physics interpolating camera position and frame based camera rotation. Also uses source engine sens.
+class_name VelocityPlayerBody3D
 
 #var sensitivity_mulitplier: float
 @export var player_sensitivity: float = 0.00038397243459:
@@ -15,8 +15,8 @@ class_name VelocityPlayerBody3D ## Character body that uses drag to limit player
 
 @export_group("Movement")
 @export var move_force: float = 5000.0 ## Force to affect player velocity
-@export var move_accel: float = 100.0 ## THIS DOES NOTHING RIGHT NOW
 @export var mass: float = 90
+@export var move_accel: float = 100.0
 @export var drag: float = 0.4
 var bufferd_move_vector: Vector3
 var mouse_input: Vector2
@@ -72,6 +72,13 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
 		mouse_input = -event.screen_relative
 		return
+	if event.is_action_pressed("ui_cancel"):
+		print("end")
+		get_tree().quit()
+	if event.is_action_pressed("mouse_right_click"):
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	if event.is_action_pressed("mouse_left_click"):
+		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 
 
