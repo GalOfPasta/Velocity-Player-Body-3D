@@ -1,6 +1,15 @@
 extends CharacterBody3D
 class_name VelocityPlayerBody3D
 
+#var sensitivity_mulitplier: float
+@export var player_sensitivity: float = 0.00038397243459:
+	set(value):
+		var dots_per_360: float = 16363.6364
+		var radians_per_dot: float = TAU / dots_per_360 # sensitivity multiplier for 1.0 CS 2 sensitivity
+		player_sensitivity = value * radians_per_dot
+		print(player_sensitivity)
+
+
 @export_group("Camera")
 @export var camera: Camera3D ## Camera3D for player view. Will be set to top level.
 @export var camera_anchor: Marker3D ## Marker3D used for interpolating camera postion between physics frames. Should be at the desired camera position.
@@ -8,7 +17,6 @@ class_name VelocityPlayerBody3D
 @export_group("Movement")
 @export var move_force: float = 5000.0 ## Force to affect player velocity
 @export var mass: float = 90
-@export var player_sensitivity: float = 1.0
 @export var move_accel: float = 100.0
 @export var drag: float = 0.4
 var bufferd_move_vector: Vector3
@@ -74,12 +82,10 @@ func _unhandled_input(event: InputEvent) -> void:
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 
-var dots_per_360: float = 16363.6364
-var radians_per_dot: float = TAU / dots_per_360 # sensitivity multiplier for 1.0 CS 2 sensitivity
+
 func rotate_with_mouse_move_vector(move_input: Vector2, inputRotation: Vector3) -> Vector3: # change this to use basis at some point
-	var sensitivity_mulitplier: float = player_sensitivity * radians_per_dot
 	var rot: Vector3 = inputRotation
-	rot.x += (move_input.y * sensitivity_mulitplier)
-	rot.y += (move_input.x * sensitivity_mulitplier)
+	rot.x += (move_input.y * player_sensitivity)
+	rot.y += (move_input.x * player_sensitivity)
 	rot.x = clampf(rot.x, deg_to_rad(-90), deg_to_rad(90))
 	return rot
