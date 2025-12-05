@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://db3itqrh4idho"]
 
-[ext_resource type="Script" uid="uid://bmatjxso5bp5" path="res://systems/player_body_3D/velocity_player_body_3d.gd" id="1_cfaa8"]
+[ext_resource type="Script" uid="uid://bxgh4yriuisph" path="res://systems/player_body_3D/example_velocity_player.gd" id="1_rv27f"]
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_oitv7"]
 radius = 0.4
@@ -10,10 +10,10 @@ height = 1.7
 radius = 0.4
 height = 1.7
 
-[node name="ExamplePlayer" type="CharacterBody3D" node_paths=PackedStringArray("camera", "camera_anchor")]
+[node name="ExampleVelocityPlayer" type="CharacterBody3D" node_paths=PackedStringArray("camera", "camera_anchor")]
 physics_interpolation_mode = 1
 top_level = true
-script = ExtResource("1_cfaa8")
+script = ExtResource("1_rv27f")
 camera = NodePath("Camera3D")
 camera_anchor = NodePath("Marker3D")
 metadata/_custom_type_script = "uid://bmatjxso5bp5"
