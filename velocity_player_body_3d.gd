@@ -1,13 +1,11 @@
 extends CharacterBody3D
 class_name VelocityPlayerBody3D ## Character body that uses drag to limit player speed. Has camera anchor setup for physics interpolating camera position and frame based camera rotation. Also uses source engine sens.
 
-#var sensitivity_mulitplier: float
 @export var player_sensitivity: float = 0.00038397243459:
 	set(value):
 		var dots_per_360: float = 16363.6364
 		var radians_per_dot: float = TAU / dots_per_360 # sensitivity multiplier for 1.0 CS 2 sensitivity
 		player_sensitivity = value * radians_per_dot
-
 
 @export_group("Camera")
 @export var camera: Camera3D ## Camera3D for player view. Will be set to top level.
@@ -18,34 +16,20 @@ class_name VelocityPlayerBody3D ## Character body that uses drag to limit player
 @export var move_accel: float = 100.0 ## THIS DOES NOTHING RIGHT NOW
 @export var mass: float = 90
 @export var drag: float = 0.4
-var bufferd_move_vector: Vector3
-var mouse_input: Vector2
-var move_input_vector: Vector2
-
-var player_rotation: Vector3:
-	get:
-		return camera.rotation
-	set (value):
-		camera.rotation = value
+var mouse_input_buffer: Vector2
 
 
-func _ready() -> void:
-	
-	camera.top_level = true
-
-
-func _physics_process(delta: float) -> void:
-	## Drag
+func apply_drag(delta: float) -> void:
 	var v: float = velocity.length()
 	var Fd: float = -drag * (v*v /2) 
 	var dragVector: Vector3 = (velocity.normalized() * -1) * Fd
 	velocity -= dragVector * delta
-	
-	## Add player input 
+
+
+func apply_move_force(move_input_vec2: Vector2, delta: float) -> void:
 	var tick_acceleration_delta = move_force / mass * delta ## the most 'force' can change velocity in this tick
-	move_input_vector = Input.get_vector("move_left", "move_right", "move_forward", "move_back").rotated(-player_rotation.y)
 	## NOTE. adding a 'waight' to the input should work unless the acceleration needs to be snappier then what the force apllied to the velocity can do 
-	var move_input_sphere = Vector3(move_input_vector.x, 0, move_input_vector.y)
+	var move_input_sphere = Vector3(move_input_vec2.x, 0, move_input_vec2.y)
 	var tick_accel_factor = velocity / tick_acceleration_delta ## How many ticks it would take to fully decelerate 
 	var force_unitvector = (move_input_sphere * 2 - tick_accel_factor.limit_length(1)).limit_length(1) 
 	## move input is *2 so it cant be mitigated by the velocity. 
@@ -54,26 +38,16 @@ func _physics_process(delta: float) -> void:
 	## force_vector.x = force_unitvector.x(-0.525) * tick_force(0.952) = -0.5.  velocity.x(0.5) + force_vector(-0.5) = 0
 	var force_vector = (force_unitvector * move_force)
 	velocity += force_vector / mass * delta
-	
-	
-	## Gravity
-	if not is_on_floor():
-		velocity += get_gravity() * delta
-	move_and_slide()
 
 
-func _process(_delta: float) -> void:
+func update_camera() -> void:
 	camera.position = camera_anchor.get_global_transform_interpolated().origin 
-	camera.rotation = rotate_with_mouse_move_vector(mouse_input, camera.rotation)
-	mouse_input = Vector2.ZERO
+	camera.rotation = rotate_with_mouse_move_vector(mouse_input_buffer, camera.rotation)
+	mouse_input_buffer = Vector2.ZERO
 
 
-func _unhandled_input(event: InputEvent) -> void:
-	if event is InputEventMouseMotion:
-		mouse_input = -event.screen_relative
-		return
-
-
+func add_to_mouse_buffer(move: Vector2) -> void:
+	mouse_input_buffer += move
 
 func rotate_with_mouse_move_vector(move_input: Vector2, inputRotation: Vector3) -> Vector3: # change this to use basis at some point
 	var rot: Vector3 = inputRotation
